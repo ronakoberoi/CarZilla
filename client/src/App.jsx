@@ -21,26 +21,30 @@ const App = () => {
   const isOwnerPath = useLocation().pathname.startsWith('/owner');
 
   return (
-    <>
+  <div className="flex flex-col min-h-screen">
     <Toaster />
-      {showLogin && <Login />}
-      {!isOwnerPath && <Navbar />}
+    {showLogin && <Login />}
+    {!isOwnerPath && <Navbar />}
 
+    <div className="flex-grow">
       <Routes>
         <Route path='/' element={<Home />}/>
         <Route path='/car-details/:id' element={<CarDetails />}/>
         <Route path='/cars' element={<Cars />}/>
         <Route path='/my-bookings' element={<MyBookings />}/>
         <Route path='/owner' element={<Layout />}>
-        <Route index element={<Dashboard />}></Route>
-        <Route path="add-car" element={<AddCar/>} />
-        <Route path="manage-cars" element={<ManageCars/>} />
-        <Route path="manage-bookings" element={<ManageBookings/>} />
+          <Route index element={<Dashboard />} />
+          <Route path="add-car" element={<AddCar/>} />
+          <Route path="manage-cars" element={<ManageCars/>} />
+          <Route path="manage-bookings" element={<ManageBookings/>} />
         </Route>
       </Routes>
-      {!isOwnerPath && <Footer />}
-    </>
-  )
+    </div>
+
+    {!isOwnerPath && <Footer />}
+  </div>
+)
+
 }
 
 export default App
