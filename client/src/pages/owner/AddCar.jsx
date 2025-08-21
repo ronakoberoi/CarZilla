@@ -134,10 +134,10 @@ const AddCar = () => {
           <label>Location</label>
             <select onChange={e=> setCar({...car, location:e.target.value})} value={car.location} className='px-3 py-2 mt-1 border border-borderColor rounded-md outline-none'>
               <option value="">Select a Location</option>
-              <option value="New York">New York</option>
-              <option value="Los Angeles">Los Angeles</option>
-              <option value="Chicago">Chicago</option>
-              <option value="Hawkins">Hawkins</option>
+              <option value="Chandigarh">Chandigarh</option>
+              <option value="Mohali">Mohali</option>
+              <option value="Zirakpur">Zirakur</option>
+              <option value="Patiala">Patiala</option>
             </select>
         </div>
         {/* CAR DESCRIPTION */}

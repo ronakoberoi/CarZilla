@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { assets } from '../assets/assets'
-import Loader from '../components/Loader'
+import Loading from '../components/Loading'
 import { useAppContext } from '../context/AppContext'
 import toast from 'react-hot-toast'
 import { motion } from 'motion/react'
@@ -129,7 +129,7 @@ const CarDetails = () => {
         </motion.form>
       </div>
     </div>
-  ) :<Loader />
+  ) :<Loading />
 }
 
 

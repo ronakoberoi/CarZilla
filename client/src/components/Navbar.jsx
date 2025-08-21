@@ -44,12 +44,12 @@ const Navbar = ({}) => {
                 {link.name}
                 </Link>
             ))}
-            <div className='hidden lg:flex items-center text-sm gap-2 border
+            {/* <div className='hidden lg:flex items-center text-sm gap-2 border
             border-borderColor px-3 rounded-full max-w-56'>
                 <input type="text" className='py-1.5 w-full bg-transparent
                 outline-none placeholder-gray-500' placeholder='Search Products'/>
-                <img src={assets.search_icon} alt="search"/>
-            </div>
+                <img src={assets.search_icon} className='cursor-pointer' alt="search"/>
+            </div> */}
             <div className='flex max-sm:flex-col items-start sm:items-center gap-6'>
                 <button onClick={()=> (isOwner ? navigate('/owner') : changeRole())} className='cursor-pointer'>{isOwner ? 'Dashboard' : 'List Cars' }</button>
                 <button onClick={()=> {user ? logout() : setShowLogin(true)}} className='cursor-pointer px-8 py-2 bg-primary

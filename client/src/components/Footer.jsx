@@ -1,6 +1,37 @@
 import React from 'react'
 import { assets } from '../assets/assets'
+import { useAppContext } from '../context/AppContext'
+import { useNavigate } from 'react-router-dom'
+import toast from 'react-hot-toast'
 const Footer = () => {
+    const { user, isOwner, setIsOwner, setShowLogin, axios } = useAppContext();
+    const navigate = useNavigate();
+    const changeRole = async () => {
+  try {
+    const { data } = await axios.post('/api/owner/change-role');
+    if (data.success) {
+      setIsOwner(true);
+      toast.success(data.message);
+      navigate('/owner');
+    } else {
+      toast.error(data.message);
+    }
+  } catch (error) {
+    toast.error('You Are Not Login...Login First!');
+  }
+};
+
+const handleListYourCar = () => {
+  if (!user) {
+    changeRole();
+  } else {
+    if (isOwner) {
+      navigate('/owner');
+    } else {
+      changeRole();
+    }
+  }
+};
   return (
     <div className='px-6 md:px-16 lg:px-24 xl:px-32 mt-30 text-sm text-gray-500'> {/* mt-60 to mt-30..done by me */}
             <div className='flex flex-wrap justify-between items-start gap-8 pb-6 border-borderColor border-b'>
@@ -19,9 +50,9 @@ const Footer = () => {
                 <div>
                     <h2 className='text-base font-medium text-gray-800 uppercase'>Quick Links</h2>
                     <ul className='mt-3 flex flex-col gap-1.5'>
-                        <li><a href="#">Home</a></li>
-                        <li><a href="#">Browse Cars</a></li>
-                        <li><a href="#">List Your Car</a></li>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/cars">Browse Cars</a></li>
+                        <button className='mr-4 cursor-pointer' onClick={handleListYourCar} >List Your Car</button>
                         <li><a href="#">About Us</a></li>
                     </ul>
                 </div>
