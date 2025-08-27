@@ -1,5 +1,10 @@
 import Booking from "../models/Booking.js"
 import Car from "../models/Car.js"
+import sgMail from "@sendgrid/mail";
+import dotenv from "dotenv";
+
+dotenv.config();
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // CHECK AVAILABILITY FOR GIVEN DATE
 
@@ -88,21 +93,80 @@ export const getOwnerBookings = async (req, res)=>{
 
 // API TO UPDATE STATUS
 
-export const changeBookingStatus = async (req, res)=>{
-    try {
-        const{ _id} = req.user;
-        const {bookingId, status} = req.body;
-        const booking = await Booking.findById(bookingId)
+export const changeBookingStatus = async (req, res) => {
+  try {
+    const { _id } = req.user;
+    const { bookingId, status } = req.body;
 
-        if(booking.owner.toString() !== _id.toString()){
-            return res.json({success: false, message: "UNAUTHORIZED"})
-        }
-        booking.status = status;
-        await booking.save();
-        res.json({success: true, message: "STATUS UPDATED"})
-        
-    } catch (error) {
-        console.log(error.message);
-        res.json({success: false, message: error.message})
+    const booking = await Booking.findById(bookingId)
+      .populate("user")
+      .populate("car");
+
+    if (!booking) {
+      return res.json({ success: false, message: "BOOKING NOT FOUND" });
     }
-}
+
+    if (booking.owner.toString() !== _id.toString()) {
+      return res.json({ success: false, message: "UNAUTHORIZED" });
+    }
+
+    booking.status = status;
+    await booking.save();
+
+    // ✅ Send email if status is "Confirmed"
+    if (status === "Confirmed") {
+      const msg = {
+        to: booking.user.email, // user’s email
+        from: "noreply@howzellerz.store", // your verified sender
+        subject: "Your Booking is Confirmed 🚗",
+        html: `
+          <h2>Hello ${booking.user.name},</h2>
+          <p>Your booking for <b>${booking.car.brand} ${booking.car.model}</b> has been <b>confirmed</b>.</p>
+          <p>
+            <b>Pickup:</b> ${booking.pickupDate.toDateString()} <br/>
+            <b>Return:</b> ${booking.returnDate.toDateString()} <br/>
+            <b>Total:</b> ₹${booking.price}
+          </p>
+          <p>Thank you for choosing CarZilla 🚀</p>
+        `,
+      };
+
+      try {
+        await sgMail.send(msg);
+        console.log("✅ Confirmation email sent to", booking.user.email);
+      } catch (err) {
+        console.error("❌ Email failed:", err.response?.body || err.message);
+      }
+    }
+    // ✅ Send email if status is "Cancelled"
+    else if (status === "Cancelled") {
+      const msg = {
+        to: booking.user.email, // user’s email
+        from: "noreply@howzellerz.store", // your verified sender
+        subject: "Your Booking is cancelled 🚗",
+        html: `
+          <h2>Hello ${booking.user.name},</h2>
+          <p>Your booking for <b>${booking.car.brand} ${booking.car.model}</b> has been <b>cancelled</b>.</p>
+          <p>
+            <b>Pickup:</b> ${booking.pickupDate.toDateString()} <br/>
+            <b>Return:</b> ${booking.returnDate.toDateString()} <br/>
+            <b>Total:</b> $${booking.price}
+          </p>
+          <p>Thank you for choosing CarZilla 🚀</p>
+        `,
+      };
+
+      try {
+        await sgMail.send(msg);
+        console.log("✅ Cancellation email sent to", booking.user.email);
+      } catch (err) {
+        console.error("❌ Email failed:", err.response?.body || err.message);
+      }
+    }
+
+    res.json({ success: true, message: "STATUS UPDATED" });
+  } catch (error) {
+    console.log(error.message);
+    res.json({ success: false, message: error.message });
+  }
+};
