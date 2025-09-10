@@ -4,7 +4,7 @@ import Title from '../../components/owner/Title'
 import toast from 'react-hot-toast'
 
 const ManageBookings = () => {
-  const {axios, currency} = useAppContext()
+  const {axios, currency,fetchPending} = useAppContext()
 
   const [bookings, setBookings] = useState([])
 
@@ -16,6 +16,22 @@ const ManageBookings = () => {
       toast.error(error.message)
     }
   }
+  const changeStatus = async (bookingId, status) => {
+  try {
+    const { data } = await axios.post('/api/bookings/change-status', { bookingId, status });
+    if (data.success) {
+      // update your local bookings state (so UI updates instantly)
+      setBookings(prev =>
+        prev.map(b => (b._id === bookingId ? { ...b, status } : b))
+      );
+
+      // refresh sidebar dot count immediately
+      fetchPending && fetchPending();
+    }
+  } catch (err) {
+    console.error(err);
+  }
+};
 
   const changeBookingStatus = async (bookingId, status)=>{
     try {
@@ -30,7 +46,7 @@ const ManageBookings = () => {
       toast.error(error.message)
     }
   }
-
+  
   useEffect(()=> {
     fetchOwnerBookings()
   },[])

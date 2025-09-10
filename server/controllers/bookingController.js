@@ -116,57 +116,140 @@ export const changeBookingStatus = async (req, res) => {
     // ✅ Send email if status is "Confirmed"
     if (status === "Confirmed") {
       const msg = {
-        to: booking.user.email, // user’s email
-        from: "noreply@howzellerz.store", // your verified sender
-        subject: "Your Booking is Confirmed 🚗",
-        html: `
-          <h2>Hello ${booking.user.name},</h2>
-          <p>Your booking for <b>${booking.car.brand} ${booking.car.model}</b> has been <b>confirmed</b>.</p>
-          <p>
-            <b>Pickup:</b> ${booking.pickupDate.toDateString()} <br/>
-            <b>Return:</b> ${booking.returnDate.toDateString()} <br/>
-            <b>Total:</b> ₹${booking.price}
-          </p>
-          <p>Thank you for choosing CarZilla 🚀</p>
-        `,
-      };
+    to: booking.user.email,
+    from: "noreply@howzellerz.store",
+    subject: "✅ Your CarZilla Booking is Confirmed!",
+    html: `
+      <div style="font-family: Arial, sans-serif; background:#f9f9f9; padding:20px; color:#333;">
+        <div style="max-width:600px; margin:auto; background:white; border-radius:12px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,0.1);">
+          <div style="background:#2563eb; color:white; text-align:center; padding:20px;">
+            <h1 style="margin:0;">CarZilla 🚗</h1>
+            <p style="margin:5px 0 0;">Your Booking is Confirmed</p>
+          </div>
 
-      try {
-        await sgMail.send(msg);
-        console.log("✅ Confirmation email sent to", booking.user.email);
-      } catch (err) {
-        console.error("❌ Email failed:", err.response?.body || err.message);
-      }
-    }
-    // ✅ Send email if status is "Cancelled"
-    else if (status === "Cancelled") {
-      const msg = {
-        to: booking.user.email, // user’s email
-        from: "noreply@howzellerz.store", // your verified sender
-        subject: "Your Booking is cancelled 🚗",
-        html: `
-          <h2>Hello ${booking.user.name},</h2>
-          <p>Your booking for <b>${booking.car.brand} ${booking.car.model}</b> has been <b>cancelled</b>.</p>
-          <p>
-            <b>Pickup:</b> ${booking.pickupDate.toDateString()} <br/>
-            <b>Return:</b> ${booking.returnDate.toDateString()} <br/>
-            <b>Total:</b> $${booking.price}
-          </p>
-          <p>Thank you for choosing CarZilla 🚀</p>
-        `,
-      };
+          <div style="padding:20px;">
+            <h2>Hello ${booking.user.name},</h2>
+            <p>Your booking has been <b style="color:green;">confirmed</b>. Get ready to ride!</p>
 
-      try {
-        await sgMail.send(msg);
-        console.log("✅ Cancellation email sent to", booking.user.email);
-      } catch (err) {
-        console.error("❌ Email failed:", err.response?.body || err.message);
-      }
-    }
+            <div style="text-align:center; margin:20px 0;">
+              <img src="${booking.car.image}" alt="Car Image" style="max-width:100%; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.2);" />
+              <h3 style="margin:10px 0;">${booking.car.brand} ${booking.car.model} (${booking.car.year})</h3>
+            </div>
 
-    res.json({ success: true, message: "STATUS UPDATED" });
+            <table style="width:100%; border-collapse:collapse; margin:20px 0;">
+              <tr>
+                <td style="padding:10px; border:1px solid #ddd;"><b>Pickup</b></td>
+                <td style="padding:10px; border:1px solid #ddd;">${booking.pickupDate.toDateString()}</td>
+              </tr>
+              <tr>
+                <td style="padding:10px; border:1px solid #ddd;"><b>Return</b></td>
+                <td style="padding:10px; border:1px solid #ddd;">${booking.returnDate.toDateString()}</td>
+              </tr>
+              <tr>
+                <td style="padding:10px; border:1px solid #ddd;"><b>Total Price</b></td>
+                <td style="padding:10px; border:1px solid #ddd; color:#2563eb;">₹${booking.price}</td>
+              </tr>
+            </table>
+            <p style="margin-top:30px;">Thank you for choosing <b>CarZilla</b> 🚀</p>
+          </div>
+
+          <div style="background:#f3f4f6; padding:15px; text-align:center; font-size:12px; color:#555;">
+            © ${new Date().getFullYear()} CarZilla. All rights reserved.
+          </div>
+        </div>
+      </div>
+    `,
+  };
+
+  try {
+    await sgMail.send(msg);
+    console.log("✅ Confirmation email sent to", booking.user.email);
+  } catch (err) {
+    console.error("❌ Email failed:", err.response?.body || err.message);
+  }
+}
+
+else if (status === "Cancelled") {
+  const msg = {
+    to: booking.user.email,
+    from: "noreply@howzellerz.store",
+    subject: "❌ Your CarZilla Booking has been Cancelled",
+    html: `
+      <div style="font-family: Arial, sans-serif; background:#f9f9f9; padding:20px; color:#333;">
+        <div style="max-width:600px; margin:auto; background:white; border-radius:12px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,0.1);">
+          
+          <div style="background:#dc2626; color:white; text-align:center; padding:20px;">
+            <h1 style="margin:0;">CarZilla 🚗</h1>
+            <p style="margin:5px 0 0;">Your Booking is Cancelled</p>
+          </div>
+
+          <div style="padding:20px;">
+            <h2>Hello ${booking.user.name},</h2>
+            <p>We’re sorry to inform you that your booking has been <b style="color:#dc2626;">cancelled</b>.</p>
+
+            <div style="text-align:center; margin:20px 0;">
+              <img src="${booking.car.image}" alt="Car Image" style="max-width:100%; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.2);" />
+              <h3 style="margin:10px 0;">${booking.car.brand} ${booking.car.model} (${booking.car.year})</h3>
+            </div>
+
+            <table style="width:100%; border-collapse:collapse; margin:20px 0;">
+              <tr>
+                <td style="padding:10px; border:1px solid #ddd;"><b>Pickup</b></td>
+                <td style="padding:10px; border:1px solid #ddd;">${booking.pickupDate.toDateString()}</td>
+              </tr>
+              <tr>
+                <td style="padding:10px; border:1px solid #ddd;"><b>Return</b></td>
+                <td style="padding:10px; border:1px solid #ddd;">${booking.returnDate.toDateString()}</td>
+              </tr>
+              <tr>
+                <td style="padding:10px; border:1px solid #ddd;"><b>Total Price</b></td>
+                <td style="padding:10px; border:1px solid #ddd; color:#dc2626;">₹${booking.price}</td>
+              </tr>
+            </table>
+            <p style="margin-top:30px;">We hope to serve you soon again. <br/>Thank you for choosing <b>CarZilla</b> 🚀</p>
+          </div>
+
+          <div style="background:#f3f4f6; padding:15px; text-align:center; font-size:12px; color:#555;">
+            © ${new Date().getFullYear()} CarZilla. All rights reserved.
+          </div>
+        </div>
+      </div>
+    `,
+  };
+
+  try {
+    await sgMail.send(msg);
+    console.log("✅ Cancellation email sent to", booking.user.email);
+  } catch (err) {
+    console.error("❌ Email failed:", err.response?.body || err.message);
+  }
+}
+      res.json({ success: true, message: "STATUS UPDATED" });
   } catch (error) {
     console.log(error.message);
     res.json({ success: false, message: error.message });
+  }
+};
+
+// Cancel booking
+
+export const cancelBooking = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const booking = await Booking.findByIdAndUpdate(
+      id,
+      { status: "Cancelled" },
+      { new: true }
+    );
+
+    if (!booking) {
+      return res.status(404).json({ success: false, message: "Booking not found" });
+    }
+
+    res.json({ success: true, message: "Booking cancelled successfully", booking });
+  } catch (error) {
+    console.error("Cancel booking error:", error);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };

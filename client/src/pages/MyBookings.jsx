@@ -7,7 +7,7 @@ import { motion } from 'motion/react'
 
 const MyBookings = () => {
 
-  const{axios, user,currency} = useAppContext()
+  const{axios, user,currency, fetchPending} = useAppContext()
   const [bookings, setBookings] = useState([])
 
   const fetchMyBookings = async ()=> {
@@ -22,6 +22,26 @@ const MyBookings = () => {
       toast.error(error.message)
     }
   }
+  // Cancel Booking
+  const handleCancelBooking = async (bookingId) => {
+  try {
+    const { data } = await axios.put(`/api/bookings/${bookingId}/cancel`);
+    if (data.success) {
+      setBookings((prev) =>
+        prev.map((b) => (b._id === bookingId ? { ...b, status: "Cancelled" } : b))
+      );
+      toast.success("Booking cancelled successfully!");
+      // <-- refresh global pending count immediately
+      fetchPending && fetchPending();
+    } else {
+      toast.error(data.message);
+    }
+  } catch (error) {
+    toast.error("Failed to cancel booking. Try again.");
+    console.error(error);
+  }
+};
+
   useEffect(()=> {
     user && fetchMyBookings()
   },[user])
@@ -79,6 +99,8 @@ const MyBookings = () => {
                   <p>Total Price</p>
                   <h1 className='text-2xl font-semibold text-primary'>{currency}{booking.price}</h1>
                   <p>Booked on {booking.createdAt.split('T')[0]}</p>
+                  {booking.status !== "Cancelled" && (<button onClick={() => handleCancelBooking(booking._id)} className='cursor-pointer px-4 py-2 bg-primary
+                hover:bg-primary-dull transition-all text-white rounded-lg mt-18'>Cancel Booking</button>)}
               </div>
               </div>
               </motion.div>
