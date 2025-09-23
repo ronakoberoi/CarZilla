@@ -71,7 +71,6 @@ export const toggleCarAvailability = async (req, res)=>{
         const {carId} = req.body
         const car = await Car.findById(carId)
 
-        // CHECKING THAT CAR OWNER IS SAME OR NOT
         if(car.owner.toString() !== _id.toString()) {
             return res.json({success: false, message: "UNAUTHORIZED"})
         }
@@ -162,8 +161,8 @@ export const updateUserImage= async (req, res)=>{
             path : response.filePath,
             transformation : [
                 {width: '400'},
-                {quality: 'auto'}, // AUTO COMPRESS
-                {format: 'webp'} //Conver to modern format
+                {quality: 'auto'},
+                {format: 'webp'}
             ]
         });
 

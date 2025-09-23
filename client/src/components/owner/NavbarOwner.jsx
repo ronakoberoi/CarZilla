@@ -51,12 +51,12 @@ const NavbarOwner = () => {
             onClick={() => setOpen((prev) => !prev)}
           />
           {open && (
-  <div className='absolute right-0 w-40 bg-white border border-borderColor rounded shadow-lg z-50'>
+  <div className='absolute right-0 w-30 bg-white border border-borderColor rounded shadow-lg z-50'>
     <button
       className='flex justify-center items-center w-full px-4 py-2 text-base font-semibold text-gray-700 hover:bg-primary hover:text-white transition-all rounded'
       onClick={handleLogout}
     >
-      Logout
+      <p className='text-lg'>Logout</p>
     </button>
   </div>
 )}

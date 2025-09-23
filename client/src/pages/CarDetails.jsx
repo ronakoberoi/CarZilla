@@ -92,7 +92,7 @@ const CarDetails = () => {
               <h1 className='text-xl font-medium mb-3'>Features</h1>
               <ul className='grid grid-cols-1 sm:grid-cols-2 gap-2'>
                 {
-                  ["360 Camera", "Bluetooth", "GPS", "Heated-Seats", "Rear View Mirror"].map((item)=>(
+                  ["360 Camera", "Bluetooth Audio", "Airbags", "Parking Sensors", "Rear View Mirror", "Air Conditioning", "Cruise Control", "Ventilated seats"].map((item)=>(
                     <li key={item} className='flex items-center text-gray-500'>
                       <img src={assets.check_icon} className='h-4 mr-2' alt="" />
                       {item}

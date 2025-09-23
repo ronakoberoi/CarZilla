@@ -62,7 +62,7 @@ const AddCar = () => {
 
   return (
     <div className='px-4 py-10 md:px-10 flex-1'>
-      <Title title="Add A New Car" subTitle="Fill in details to list a new car for booking, including [pricing, availability, and car specifications." />
+      <Title title="Add A New Car" subTitle="Fill in details to list a new car for booking, including pricing, availability, and car specifications." />
       <form onSubmit={onSubmitHandler} className='flex flex-col gap-5 text-gray-500 text-sm mt-6 max-w-xl'>
         {/* CAR IMAGE */}
         <div className='flex items-center gap-2 w-full'>
@@ -136,7 +136,7 @@ const AddCar = () => {
               <option value="">Select a Location</option>
               <option value="Chandigarh">Chandigarh</option>
               <option value="Mohali">Mohali</option>
-              <option value="Zirakpur">Zirakur</option>
+              <option value="Zirakpur">Zirakpur</option>
               <option value="Patiala">Patiala</option>
             </select>
         </div>
