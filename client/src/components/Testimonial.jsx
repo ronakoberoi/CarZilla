@@ -7,24 +7,19 @@ const Testimonial = () => {
     const [email, setEmail] = useState("");
 
     const testimonials = [
-        { name: "Emma Rodriguez", location: "Barcelona, Spain", image: assets.testimonial_image_1, testimonial: "Exceptional service and attention to detail. Highly recommended!" },
-        { name: "Liam Johnson", location: "New York, USA", image: assets.testimonial_image_2, testimonial: "The entire process was smooth, and the results exceeded all expectations. Thank you!" },
-        { name: "Sophia Lee", location: "Seoul, South Korea", image: assets.testimonial_image_1, testimonial: "Fantastic experience! From start to finish, the team was professional, responsive, and genuinely cared about delivering great results." }
+        { name: "Sakshi Bhatia", location: "Chandigarh, India", image: assets.testimonial_image_1, testimonial: "Exceptional service and attention to detail. Highly recommended!" },
+        { name: "Ravleen Sethi", location: "Mohali, India", image: assets.testimonial_image_2, testimonial: "The entire process was smooth, and the results exceeded all expectations. Thank you!" },
+        { name: "Aarushi Kumra", location: "Patiala, India", image: assets.testimonial_image_1, testimonial: "Fantastic experience! From start to finish, the team was professional, responsive, and genuinely cared about delivering great results." }
     ];
 
     const handleSubscribe = (e) => {
         e.preventDefault();
-        
         if (!email) {
             toast.error("Please enter your email address");
             return;
         }
-
-        // Simulate sending to backend
-        console.log("Subscribed email:", email);
-
         toast.success("Subscribed successfully! 🎉");
-        setEmail(""); // Clear input
+        setEmail("");
     };
 
     return (
@@ -60,7 +55,7 @@ const Testimonial = () => {
             <div className="flex flex-col items-center justify-center text-center space-y-2">
                 <h1 className="md:text-4xl text-2xl font-semibold">Never Miss a Deal!</h1>
                 <p className="md:text-lg text-gray-500/70 pb-8">
-                    Subscribe to get the latest offers, new arrivals, and exclusive discounts
+                Subscribe to get the latest offers, new arrivals, and exclusive discounts
                 </p>
                 <form onSubmit={handleSubscribe} className="flex items-center justify-between max-w-2xl w-full md:h-13 h-12">
                     <input

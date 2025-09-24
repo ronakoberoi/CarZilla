@@ -3,6 +3,7 @@ import fs from "fs";
 import imagekit from "../configs/imageKit.js"
 import Car from "../models/Car.js"
 import Booking from "../models/Booking.js";
+
 export const changeRoleToOwner=async(req,res)=>{
     try{
         const{_id}=req.user;
@@ -35,8 +36,8 @@ export const addCar = async (req, res)=>{
             path : response.filePath,
             transformation : [
                 {width: '1280'},
-                {quality: 'auto'}, // AUTO COMPRESS
-                {format: 'webp'} //Conver to modern format
+                {quality: 'auto'},
+                {format: 'webp'}
             ]
         });
 

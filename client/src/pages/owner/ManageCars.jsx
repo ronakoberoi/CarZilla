@@ -64,11 +64,11 @@ const ManageCars = () => {
         <table className='w-full border-collapse text-left text-sm text-gray-600'>
           <thead className='text-gray-500'>
             <tr>
-              <th className='p-3 font-medium'>Car</th>
-              <th className='p-3 font-medium max-md:hidden'>Category</th>
-              <th className='p-3 font-medium'>Price</th>
-              <th className='p-3 font-medium max-md:hidden'>Status</th>
-              <th className='p-3 font-medium'>Actions</th>
+              <th className='px-9 p-3 font-medium'>Car</th>
+              <th className='px-3 p-3 font-medium max-md:hidden'>Category</th>
+              <th className='px-7 p-3 font-medium'>Price</th>
+              <th className='px-7 p-3 font-medium max-md:hidden'>Status</th>
+              <th className='px-7 p-3 font-medium'>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -78,7 +78,7 @@ const ManageCars = () => {
                   <img src={car.image} alt="" className='h-12 w-12 aspect-square rounded-md object-cover' />
                   <div className='max-md:hidden'>
                     <p className='font-medium'>{car.brand} {car.model}</p>
-                    <p className='text-xs text-gray-500'>{car.seating_capacity} • {car.transmission}</p>
+                    <p className='text-xs text-gray-500'>{car.seating_capacity} • {car.transmission} • {car.location}</p>
                   </div>
                 </td>
                 <td className='p-3 max-md:hidden'>{car.category}</td>
