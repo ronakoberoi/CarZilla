@@ -99,8 +99,11 @@ const MyBookings = () => {
                   <p>Total Price</p>
                   <h1 className='text-2xl font-semibold text-primary'>{currency}{booking.price}</h1>
                   <p>Booked on {booking.createdAt.split('T')[0]}</p>
-                  {booking.status !== "Cancelled" && (<button onClick={() => handleCancelBooking(booking._id)} className='cursor-pointer px-4 py-2 bg-primary
-                hover:bg-primary-dull transition-all text-white rounded-lg mt-18'>Cancel Booking</button>)}
+                  {booking.status !== "Cancelled" && new Date(booking.pickupDate).setHours(0,0,0,0) > new Date().setHours(0,0,0,0) && (<button 
+                  onClick={() => handleCancelBooking(booking._id)} 
+                  className='cursor-pointer px-4 py-2 bg-primary hover:bg-primary-dull transition-all text-white rounded-lg mt-18'>
+                    Cancel Booking
+                    </button>)}
               </div>
               </div>
               </motion.div>

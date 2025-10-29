@@ -23,12 +23,10 @@ const Cars = () => {
       setFilteredCars(cars)
       return null
     }
-    const filtered = cars.slice().filter((car)=>{
-      return car.brand.toLowerCase().includes(input.toLowerCase())
-      || car.model.toLowerCase().includes(input.toLowerCase())
-      || car.category.toLowerCase().includes(input.toLowerCase())
-      || car.transmission.toLowerCase().includes(input.toLowerCase())
-    })
+  const filtered = cars.slice().filter((car) => {
+  const searchString = `${car.brand} ${car.model} ${car.category} ${car.transmission}`.toLowerCase();
+  return searchString.includes(input.toLowerCase());
+  });
     setFilteredCars(filtered)
   }
   

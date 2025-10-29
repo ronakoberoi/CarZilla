@@ -8,9 +8,14 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // CHECK AVAILABILITY FOR GIVEN DATE
 
-const checkAvailability = async (carId, pickupDate, returnDate) => {
+export const checkAvailability = async (carId, pickupDate, returnDate) => {
+    const car = await Car.findById(carId);
+    if (!car || !car.isAvaliable) {
+      return false;
+    }
     const bookings = await Booking.find({
         car: carId,
+        status: { $ne: "Cancelled" },
         pickupDate: { $lte: returnDate },
         returnDate: { $gte: pickupDate },
     });
@@ -48,11 +53,10 @@ export const createBooking = async (req, res)=>{
         if(!isAvaliable){
             return res.json({success: false, message: "Car is not Available"})
         }
-
         const carData = await Car.findById(car)
         const picked = new Date(pickupDate);
         const returned = new Date(returnDate);
-        const noOfDays = Math.ceil(returned - picked) / (1000* 60 * 60 * 24)
+        const noOfDays = Math.ceil((returned - picked) / (1000 * 60 * 60 * 24)) || 1;
         const price = carData.pricePerDay * noOfDays;
 
         await Booking.create({car, owner: carData.owner, user: _id, pickupDate, returnDate, price})
@@ -216,7 +220,6 @@ else if (status === "Cancelled") {
       </div>
     `,
   };
-
   try {
     await sgMail.send(msg);
     console.log("✅ Cancellation email sent to", booking.user.email);
