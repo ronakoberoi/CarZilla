@@ -1,11 +1,13 @@
 import React from 'react'
 import { useAppContext } from '../context/AppContext';
+import { useAuth0 } from '@auth0/auth0-react';
 import { Toaster } from 'react-hot-toast';
 import toast from 'react-hot-toast';
 
 const Login = () => {
 
     const {setShowLogin, axios, setToken, navigate} = useAppContext()
+    const { loginWithPopup, getIdTokenClaims } = useAuth0();
     const [state, setState] = React.useState("login");
     const [name, setName] = React.useState("");
     const [email, setEmail] = React.useState("");
@@ -21,6 +23,37 @@ const Login = () => {
                 setToken(data.token)
                 localStorage.setItem('token', data.token)
                 setShowLogin(false)
+            } else{
+                toast.error(data.message)
+            }
+        } catch (error) {
+            toast.error(error.message)
+        }
+    }
+
+    const handleAuth0Login = async () =>{
+        try {
+            await loginWithPopup({authorizationParams: {prompt: 'login'}})
+            const claims = await getIdTokenClaims()
+            const emailFromClaims = claims?.email
+            const derivedName = claims?.name || claims?.nickname || (emailFromClaims ? emailFromClaims.split('@')[0] : '') || 'User'
+            const picture = claims?.picture || ''
+            if(!emailFromClaims) return toast.error('Unable to retrieve profile from Auth0')
+
+            const {data} = await axios.post('/api/user/auth0', {name: derivedName, email: emailFromClaims, image: picture})
+            if(data.success){
+                toast.success('Login successful!')
+                // store app token so protected set-password page is accessible
+                setToken(data.token)
+                localStorage.setItem('token', data.token)
+                if(data.hasLocalPassword){
+                    navigate('/')
+                    setShowLogin(false)
+                } else {
+                    // redirect to create local password page
+                    navigate('/set-password')
+                    setShowLogin(false)
+                }
             } else{
                 toast.error(data.message)
             }
@@ -61,6 +94,11 @@ const Login = () => {
             <button className="bg-primary hover:bg-primary-dull transition-all text-white w-full py-2 rounded-md cursor-pointer">
                 {state === "register" ? "Create Account" : "Login"}
             </button>
+            <button type="button" onClick={handleAuth0Login} className="mt-2 bg-white border border-gray-200 text-gray-700 w-full py-2 rounded-md cursor-pointer flex items-center justify-center gap-2">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVZEZ6fa7bPwCI4HE5583rhd3qiFNmf6kiPg&s" alt="google" className="w-5 h-5" />
+                Continue with Google
+            </button>
+            
         </form>
     </div>
   )

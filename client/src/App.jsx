@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import Cars from './pages/Cars';
 import CarDetails from './pages/CarDetails';
 import MyBookings from './pages/MyBookings';
+import SetPassword from './pages/SetPassword';
 import Footer from './components/Footer';
 import Layout from './pages/owner/Layout';
 import Dashboard from './pages/owner/Dashboard';
@@ -29,6 +30,7 @@ const App = () => {
     <div className="flex-grow">
       <Routes>
         <Route path='/' element={<Home />}/>
+        <Route path='/set-password' element={<SetPassword />} />
         <Route path='/car-details/:id' element={<CarDetails />}/>
         <Route path='/cars' element={<Cars />}/>
         <Route path='/my-bookings' element={<MyBookings />}/>

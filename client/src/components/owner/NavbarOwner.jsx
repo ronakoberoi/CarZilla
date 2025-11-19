@@ -37,10 +37,7 @@ const NavbarOwner = () => {
 
         <div className="relative flex items-center cursor-pointer" ref={dropdownRef} onClick={() => setOpen(prev => !prev)}>
           <img
-            src={
-              user?.image ||
-              "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=300"
-            }
+            src={user?.image || assets.user_profile}
             alt="User avatar"
             className="h-10 w-10 rounded-full object-cover"
           />
