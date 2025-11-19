@@ -15,6 +15,7 @@ import ManageBookings from './pages/owner/ManageBookings';
 import Login from './components/Login';
 import { Toaster } from 'react-hot-toast'
 import { useAppContext } from './context/AppContext';
+import ChatWidget from './components/ChatWidget';
 
 
 const App = () => {
@@ -44,6 +45,7 @@ const App = () => {
     </div>
 
     {!isOwnerPath && <Footer />}
+    <ChatWidget />
   </div>
 )
 
