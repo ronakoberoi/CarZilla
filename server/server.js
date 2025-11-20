@@ -5,7 +5,9 @@ import connectDB from "./configs/db.js";
 import userRouter from "./routes/userRoutes.js";
 import ownerRouter from "./routes/ownerRoutes.js";
 import bookingRouter from "./routes/bookingRoutes.js";
+import paymentRouter from "./routes/paymentRoutes.js";
 import chatRouter from "./routes/chatRoutes.js";
+import { webhookHandler } from "./controllers/paymentController.js";
 import Car from './models/Car.js';
 import Booking from './models/Booking.js';
 
@@ -17,6 +19,10 @@ await connectDB()
 
 // MIDDLEWARE
 app.use(cors());
+
+// Register Razorpay webhook route with raw body parser BEFORE express.json()
+app.post('/api/payments/webhook', express.raw({ type: 'application/json' }), webhookHandler);
+
 app.use(express.json());
 app.use('/api/chat', chatRouter);
 
@@ -24,6 +30,7 @@ app.get('/', (req, res)=> res.send("Server is running"))
 app.use('/api/user', userRouter)
 app.use('/api/owner', ownerRouter)
 app.use('/api/bookings', bookingRouter);
+app.use('/api/payments', paymentRouter);
 
 (async () => {
   try {

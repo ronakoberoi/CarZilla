@@ -119,11 +119,18 @@ export const changeBookingStatus = async (req, res) => {
 
     // ✅ Send email if status is "Confirmed"
     if (status === "Confirmed") {
+      // Build frontend links (pay link with booking id to trigger payment, and a fallback My Bookings page)
+      const frontendBase = (process.env.FRONTEND_URL || process.env.CLIENT_URL || 'http://localhost:5173').replace(/\/$/, '');
+      const payUrl = `${frontendBase}/my-bookings?pay=${booking._id}`;
+      const myBookingsUrl = `${frontendBase}/my-bookings`;
+
+      const shouldShowPay = !(booking.paymentStatus && booking.paymentStatus === 'Paid');
+
       const msg = {
-    to: booking.user.email,
-    from: "noreply@howzellerz.store",
-    subject: "✅ Your CarZilla Booking is Confirmed!",
-    html: `
+        to: booking.user.email,
+        from: "noreply@howzellerz.store",
+        subject: "✅ Your CarZilla Booking is Confirmed!",
+        html: `
       <div style="font-family: Arial, sans-serif; background:#f9f9f9; padding:20px; color:#333;">
         <div style="max-width:600px; margin:auto; background:white; border-radius:12px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,0.1);">
           <div style="background:#2563eb; color:white; text-align:center; padding:20px;">
@@ -154,6 +161,19 @@ export const changeBookingStatus = async (req, res) => {
                 <td style="padding:10px; border:1px solid #ddd; color:#2563eb;">₹${booking.price}</td>
               </tr>
             </table>
+
+            ${shouldShowPay ? `
+              <div style="text-align:center; margin:20px 0;">
+                <a href="${payUrl}" style="display:inline-block; padding:12px 24px; background:#10b981; color:white; text-decoration:none; border-radius:8px; font-weight:600;">Pay Now</a>
+              </div>
+              <p style="text-align:center; font-size:13px; color:#555;">Or manage your booking and pay later from your <a href="${myBookingsUrl}">My Bookings</a> page.</p>
+            ` : `
+              <div style="text-align:center; margin:20px 0;">
+                <a href="${myBookingsUrl}" style="display:inline-block; padding:12px 24px; background:#2563eb; color:white; text-decoration:none; border-radius:8px; font-weight:600;">View Booking</a>
+              </div>
+              <p style="text-align:center; font-size:13px; color:#555;">Your payment is already received. View your booking details on the <a href="${myBookingsUrl}">My Bookings</a> page.</p>
+            `}
+
             <p style="margin-top:30px;">Thank you for choosing <b>CarZilla</b> 🚀</p>
           </div>
 
@@ -163,7 +183,7 @@ export const changeBookingStatus = async (req, res) => {
         </div>
       </div>
     `,
-  };
+      };
 
   try {
     await sgMail.send(msg);
@@ -240,15 +260,24 @@ export const cancelBooking = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const booking = await Booking.findByIdAndUpdate(
-      id,
-      { status: "Cancelled" },
-      { new: true }
-    );
-
+    const requester = req.user;
+    if (!requester) return res.status(401).json({ success: false, message: 'Not authorized' });
+    
+    const booking = await Booking.findById(id).populate('user owner').populate('car');
     if (!booking) {
       return res.status(404).json({ success: false, message: "Booking not found" });
     }
+
+    const requesterId = requester._id.toString();
+    const isBookingUser = booking.user && booking.user._id.toString() === requesterId;
+    const isBookingOwner = booking.owner && booking.owner._id.toString() === requesterId;
+    // allow admins (if you have role), booking user or car owner to cancel
+    if (!isBookingUser && !isBookingOwner && requester.role !== 'admin') {
+      return res.status(403).json({ success: false, message: 'Forbidden: cannot cancel this booking' });
+    }
+
+    booking.status = 'Cancelled';
+    await booking.save();
 
     res.json({ success: true, message: "Booking cancelled successfully", booking });
   } catch (error) {

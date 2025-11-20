@@ -9,6 +9,7 @@ bookingRouter.post('/create', protect, createBooking)
 bookingRouter.get('/user', protect, getUserBookings)
 bookingRouter.get('/owner', protect, getOwnerBookings)
 bookingRouter.post('/change-status', protect, changeBookingStatus)
-bookingRouter.put("/:id/cancel", cancelBooking);
+// Removed unprotected cancel route
+bookingRouter.put("/:id/cancel", protect, cancelBooking);
 
 export default bookingRouter

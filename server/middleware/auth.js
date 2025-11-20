@@ -18,7 +18,9 @@ export const protect = async (req, res, next) => {
       return res.status(401).json({ success: false, message: "Not Authorized" });
     }
 
-    req.user = await User.findById(decoded).select("-password");
+    // decoded should be an object like { id: '<userId>' }
+    const userId = decoded.id || decoded._id || decoded;
+    req.user = await User.findById(userId).select("-password");
 
     if (!req.user) {
       return res.status(404).json({ success: false, message: "User not found" });

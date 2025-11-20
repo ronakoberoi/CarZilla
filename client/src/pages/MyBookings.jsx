@@ -9,17 +9,96 @@ const MyBookings = () => {
 
   const{axios, user,currency, fetchPending} = useAppContext()
   const [bookings, setBookings] = useState([])
+  const [autoPayTriggered, setAutoPayTriggered] = useState(false)
 
   const fetchMyBookings = async ()=> {
     try {
       const{ data } = await axios.get('/api/bookings/user')
       if(data.success){
         setBookings(data.bookings)
+        // If URL contains ?pay=<bookingId> then trigger payment for that booking once
+        try {
+          const params = new URLSearchParams(window.location.search)
+          const payId = params.get('pay')
+          if (payId && !autoPayTriggered) {
+            const bookingToPay = data.bookings.find(b => b._id === payId)
+            if (bookingToPay) {
+              setAutoPayTriggered(true)
+              // slight delay to let UI render
+              setTimeout(() => handlePay(bookingToPay), 400)
+            }
+          }
+        } catch (e) {
+          console.warn('auto-pay parse error', e)
+        }
       }else{
         toast.error(data.message)
       }
     } catch (error) {
       toast.error(error.message)
+    }
+  }
+
+  // Load Razorpay checkout script
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      if (document.getElementById('razorpay-sdk')) return resolve(true)
+      const script = document.createElement('script')
+      script.id = 'razorpay-sdk'
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js'
+      script.onload = () => resolve(true)
+      script.onerror = () => resolve(false)
+      document.body.appendChild(script)
+    })
+  }
+
+  const handlePay = async (booking) => {
+    try {
+      const ok = await loadRazorpayScript()
+      if (!ok) return toast.error('Failed to load payment SDK')
+
+      const { data } = await axios.post('/api/payments/create-order', { bookingId: booking._id })
+      if (!data.success) return toast.error(data.message || 'Could not create order')
+      const order = data.order
+
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_RhaCw3XgeS3Mfu', // fallback to provided test key
+        amount: order.amount,
+        currency: order.currency,
+        name: 'CarZilla',
+        description: `Booking payment for ${booking.car.brand} ${booking.car.model}`,
+        order_id: order.id,
+        prefill: {
+          name: user?.name || '',
+          email: user?.email || ''
+        },
+        handler: async function (response) {
+          try {
+            const verifyRes = await axios.post('/api/payments/verify-payment', {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              bookingId: booking._id
+            })
+            if (verifyRes.data.success) {
+              // update local state
+              setBookings((prev) => prev.map((b) => (b._id === booking._id ? { ...b, paymentStatus: 'Paid' } : b)))
+              toast.success('Payment successful and booking updated')
+            } else {
+              toast.error(verifyRes.data.message || 'Payment verification failed')
+            }
+          } catch (err) {
+            console.error(err)
+            toast.error('Payment verification failed')
+          }
+        }
+      }
+
+      const rzp = new window.Razorpay(options)
+      rzp.open()
+    } catch (error) {
+      console.error('handlePay error', error)
+      toast.error('Payment failed to start')
     }
   }
   // Cancel Booking
@@ -93,17 +172,51 @@ const MyBookings = () => {
                     </div>
                 </div>
               </div>
-              {/* Price */}
-              <div className='md:col-span-1 flex flex-col justify-between gap-6'>
-                <div className='text-sm text-gray-500 text-right'>
+                {/* Price */}
+                <div className='md:col-span-1 flex flex-col justify-between gap-6'>
+                  <div className='text-sm text-gray-500 text-right'>
                   <p>Total Price</p>
                   <h1 className='text-2xl font-semibold text-primary'>{currency}{booking.price}</h1>
                   <p>Booked on {booking.createdAt.split('T')[0]}</p>
-                  {booking.status !== "Cancelled" && new Date(booking.pickupDate).setHours(0,0,0,0) > new Date().setHours(0,0,0,0) && (<button 
-                  onClick={() => handleCancelBooking(booking._id)} 
-                  className='cursor-pointer px-4 py-2 bg-primary hover:bg-primary-dull transition-all text-white rounded-lg mt-18'>
-                    Cancel Booking
-                    </button>)}
+                  {/**
+                   * Show actions (Cancel / Pay) when:
+                   * - booking is not cancelled AND
+                   * - booking pickup date is in the future OR booking return date is today-or-future.
+                   *
+                   * This is more robust across timezones and avoids subtle false negatives
+                   * when comparing date strings that may shift due to UTC/local timezone.
+                   */}
+                  {(() => {
+                    try {
+                      const today = new Date();
+                      today.setHours(0,0,0,0);
+                      const pickupDay = booking.pickupDate ? new Date(booking.pickupDate) : null;
+                      const returnDay = booking.returnDate ? new Date(booking.returnDate) : null;
+                      if (pickupDay) pickupDay.setHours(0,0,0,0);
+                      if (returnDay) returnDay.setHours(0,0,0,0);
+
+                      const isFuturePickup = pickupDay ? pickupDay.getTime() > today.getTime() : false;
+                      const isOngoingOrFuture = returnDay ? returnDay.getTime() >= today.getTime() : false;
+
+                      return (booking.status !== 'Cancelled' && (isFuturePickup || isOngoingOrFuture));
+                    } catch (e) {
+                      // on any parsing error, show actions conservatively
+                      return booking.status !== 'Cancelled';
+                    }
+                  })() && (
+                    <div className='flex flex-col items-end gap-2'>
+                      <button 
+                        onClick={() => handleCancelBooking(booking._id)} 
+                        className='cursor-pointer mt-3 px-4 py-2 bg-primary hover:bg-primary-dull transition-all text-white rounded-lg'>
+                        Cancel Booking
+                      </button>
+                      {booking.status === 'Confirmed' && booking.paymentStatus !== 'Paid' && (
+                        <button onClick={() => handlePay(booking)} className='cursor-pointer mt-1 px-4 py-2 bg-primary hover:bg-primary-dull text-white rounded-lg '>
+                          Pay Now
+                        </button>
+                      )}
+                    </div>
+                  )}
               </div>
               </div>
               </motion.div>
