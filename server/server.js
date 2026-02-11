@@ -18,7 +18,11 @@ const app = express()
 await connectDB()
 
 // MIDDLEWARE
-app.use(cors());
+app.use(cors({
+  origin: "https://carzilla-u6ho.onrender.com",
+  credentials: true
+}))
+
 
 // Register Razorpay webhook route with raw body parser BEFORE express.json()
 app.post('/api/payments/webhook', express.raw({ type: 'application/json' }), webhookHandler);
