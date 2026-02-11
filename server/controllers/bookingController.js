@@ -128,7 +128,7 @@ export const changeBookingStatus = async (req, res) => {
 
       const msg = {
         to: booking.user.email,
-        from: "noreply@howzellerz.store",
+        from: "asijasahil13@gmail.com",
         subject: "✅ Your CarZilla Booking is Confirmed!",
         html: `
       <div style="font-family: Arial, sans-serif; background:#f9f9f9; padding:20px; color:#333;">
@@ -196,7 +196,7 @@ export const changeBookingStatus = async (req, res) => {
 else if (status === "Cancelled") {
   const msg = {
     to: booking.user.email,
-    from: "noreply@howzellerz.store",
+    from: "asijasahil13@gmail.com",
     subject: "❌ Your CarZilla Booking has been Cancelled",
     html: `
       <div style="font-family: Arial, sans-serif; background:#f9f9f9; padding:20px; color:#333;">
