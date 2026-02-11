@@ -64,6 +64,6 @@ app.use('/api/payments', paymentRouter);
   }
 )();
 
-const PORT = 4020 || 3000;
+const PORT = process.env.PORT || 4020;
 
-app.listen(PORT, ()=> console.log(`Server runnnig on Port ${PORT}`))
+app.listen(PORT, () => console.log(`Server running on ${PORT}`))
