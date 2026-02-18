@@ -120,7 +120,7 @@ export const changeBookingStatus = async (req, res) => {
     // ✅ Send email if status is "Confirmed"
     if (status === "Confirmed") {
       // Build frontend links (pay link with booking id to trigger payment, and a fallback My Bookings page)
-      const frontendBase = (process.env.FRONTEND_URL || process.env.CLIENT_URL || 'http://localhost:5173').replace(/\/$/, '');
+      const frontendBase = ('https://carzilla-u6ho.onrender.com').replace(/\/$/, '');
       const payUrl = `${frontendBase}/my-bookings?pay=${booking._id}`;
       const myBookingsUrl = `${frontendBase}/my-bookings`;
 
